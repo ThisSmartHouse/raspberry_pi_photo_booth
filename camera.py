@@ -15,6 +15,7 @@ __version__ = '2.1'
 #Standard imports
 from time import sleep
 from shutil import copy2
+from subprocess import call
 import sys
 import datetime
 import os
@@ -369,11 +370,28 @@ def main():
         #thanks for playing
         playback_screen(filename_prefix)
 
+        background = Image.open(REAL_PATH + '/assets/collage-template.jpg')
+        photo_positions = [(96, 25), (708, 25), (96, 688), (708, 688)]
+        filename_prefix = get_base_filename_for_images()
+
         #Save photos into additional folders (for post-processing/backup... etc.)
         for dest in COPY_IMAGES_TO:
             for src in photo_filenames:
                 print(src + ' -> ' + dest)
                 copy2(src, dest)
+        
+        for idx, src in enumerate(photo_filenames):
+            print('Adding to collage: ' + src)
+            image = Image.open(src)
+            image.thumbnail((560, 420))
+            background.paste(image, photo_positions[idx])
+
+        collage_name = filename_prefix + '_collage_' + str(TOTAL_PICS - 3) + 'to' + str(TOTAL_PICS) + '.jpg'
+        background.save(collage_name)
+        
+        print('Collage Saved!')
+
+        call([REAL_PATH + '/canon-selphy-print/print-selphy-postcard', collage_name])
 
         # If we were doing a test run, exit here.
         if TESTMODE_AUTOPRESS_BUTTON:
@@ -387,13 +405,7 @@ def main():
         print('Press the button to take a photo')
 
 if __name__ == "__main__":
-    try:
         main()
-
-    except KeyboardInterrupt:
-        print('Goodbye')
-
-    finally:
         CAMERA.stop_preview()
         CAMERA.close()
         GPIO.cleanup()
