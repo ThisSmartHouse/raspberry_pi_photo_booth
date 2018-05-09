@@ -371,7 +371,7 @@ def main():
         playback_screen(filename_prefix)
 
         background = Image.open(REAL_PATH + '/assets/collage-template.jpg')
-        photo_positions = [(96, 25), (708, 25), (96, 688), (708, 688)]
+        photo_positions = [(651, 82), (19, 807), (595, 807), (1179, 807)]
         filename_prefix = get_base_filename_for_images()
 
         #Save photos into additional folders (for post-processing/backup... etc.)
@@ -382,8 +382,14 @@ def main():
         
         for idx, src in enumerate(photo_filenames):
             print('Adding to collage: ' + src)
+            
             image = Image.open(src)
-            image.thumbnail((560, 420))
+
+            if idx == 0:
+                image.thumbnail((1090,654))
+            else:
+                image.thumbnail((560, 336))
+
             background.paste(image, photo_positions[idx])
 
         collage_name = filename_prefix + '_collage_' + str(TOTAL_PICS - 3) + 'to' + str(TOTAL_PICS) + '.jpg'
